@@ -1,9 +1,27 @@
 import React, { useState,useEffect } from 'react';
 import './ProductList.css'
 import CartItem from './CartItem';
+import { useDispatch } from "react-redux";
+import { addItem } from "./CartSlice";
+import { useState } from "react";
+
 function ProductList() {
+    const dispatch = useDispatch();
+  const [cartTotal, setCartTotal] = useState(0);
     const [showCart, setShowCart] = useState(false); 
-    const [showPlants, setShowPlants] = useState(false); // State to control the visibility of the About Us page
+    const [showPlants, setShowPlants] = useState(false);
+ const [addedToCart, setAddedToCart] = useState({});
+
+  const handleAddedToCart = (e, plant) => {
+    e.target.innerText = "Added to cart";
+    e.target.disabled = true;
+    setCartTotal(cartTotal + 1);
+    dispatch(addItem(plant));
+    setAddedToCart((prevState) => ({
+      ...prevState,
+      [plant.name]: true,
+    }));
+  };
 
     const plantsArray = [
         {
@@ -273,35 +291,33 @@ const handlePlantsClick = (e) => {
   <div key={index}>
     <h1><div>{category.category}</div></h1>
     <div className="product-list">
-      {category.plants.map((plant, plantIndex) => (
+      {plantCategory.plants.map((plant, plantIndex) => (
         <div className="product-card" key={plantIndex}>
-          <img className="product-image" src={plant.image} alt={plant.name} />
-         <div className="product-title">{plant.name}</div>
-{/*Similarly like the above plant.name show other details like description and cost*/}
-         <button  className="product-button" onClick={() => handleAddToCart(plant)}>Add to Cart</button>
+            <img src={plant.image} className="product-image" />
+                    <div className="product-title">{plant.name}</div>
+                    <div>{plant.description}</div>
+                    <br />
+                    <div className="product-price">{plant.cost}</div>
+                    <button
+                      className="product-button"
+                      onClick={(e) => handleAddedToCart(e, plant)}
+                    >
+                      Add to Cart
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
+      ) : (
+        <CartItem
+          onContinueShopping={handleContinueShopping}
+          cartTotalState={[cartTotal, setCartTotal]}
+        />
+      )}
     </div>
-  </div>
-))}
-
-const [addedToCart, setAddedToCart] = useState({});
-
-const handleAddToCart = (product) => {
-  dispatch(addItem(product));
-  setAddedToCart((prevState) => ({
-     ...prevState,
-     [product.name]: true, // Set the product name as key and value as true to indicate it's added to cart
-   }));
-};
-
-
-        </div>
- ) :  (
-    <CartItem onContinueShopping={handleContinueShopping}/>
-)}
-    </div>
-    );
+  );
 }
 
 export default ProductList;
